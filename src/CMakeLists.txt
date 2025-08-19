@@ -1,0 +1,2 @@
+add_executable(example_MCK example_MCK.cpp)
+add_executable(example_Lorenz example_Lorenz.cpp)
