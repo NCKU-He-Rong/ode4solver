@@ -4,6 +4,9 @@
 // Include the Eigen library for vector and matrix operations
 #include <Eigen/Dense>
 
+// Include the functional header for std::function
+#include <functional>
+
 /**
  * @brief Abstract base class that defines the interface for a dynamic system.
  *
@@ -32,10 +35,26 @@ public:
      * @param time  Current simulation time (t)
      * @return A vector representing the time derivative of the state (dx/dt)
      */
-    virtual Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state, 
-                                               const Eigen::VectorXd& input, 
-                                               double time) const = 0;
+    virtual Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state, double time) const = 0;
     
+
+    void defineInput(const std::function<Eigen::VectorXd(double)>& input) 
+    {
+        inputFunc = input;
+    }
+    
+    Eigen::VectorXd getInput(double time) const 
+    {
+        if (inputFunc) 
+        {
+            return inputFunc(time);
+        }
+        else
+        {
+            throw std::runtime_error("Input function is not defined");
+        }
+    }
+
     /**
      * @brief Get the dimension of the system state vector.
      *
@@ -49,6 +68,10 @@ public:
      * @return Number of input variables
      */
     virtual int getInputDimension() const = 0;
+
+protected:
+    // Function to define the input as a function of time
+    std::function<Eigen::VectorXd(double)> inputFunc;
 };
 
 #endif // DYNAMIC_SYSTEM_HPP

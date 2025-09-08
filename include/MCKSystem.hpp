@@ -50,8 +50,7 @@ public:
      * @param time  Current simulation time (unused here, but required by interface)
      * @return State derivative vector [x', x'']
      */
-    Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state, 
-                                       const Eigen::VectorXd& input, 
+    Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state,
                                        double time) const override 
     {
         if (state.size() != 2) 
@@ -59,7 +58,7 @@ public:
             throw std::invalid_argument("MCK system requires 2-dimensional state vector");
         }
 
-        return A_matrix * state + B_vector * input(0);
+        return A_matrix * state + B_vector * getInput(time);
     }
     
     /// @brief Get the system matrix A

@@ -9,7 +9,7 @@ public:
     DCMotorSystem(double a, double b, double c_pos, double c_neg):
         a_(a), b_(b), c_pos_(c_pos), c_neg_(c_neg) {}
 
-    Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state, const Eigen::VectorXd& input, double time) const override 
+    Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state, double time) const override 
     {
         if (state.size() != 2) 
         {
@@ -18,7 +18,7 @@ public:
 
         Eigen::VectorXd derivatives(2);
         derivatives[0] = state[1];
-        derivatives[1] = - a_ * state[1] + b_ * input[0]
+        derivatives[1] = - a_ * state[1] + b_ * getInput(time)[0]
                          - c_pos_ * (state[1] > 0 ? 1.0 : 0.0) - c_neg_ * (state[1] < 0 ? -1.0 : 0.0);
         return derivatives;
     }

@@ -13,12 +13,15 @@ int main(int argc, char** argv)
     initial_state << 1.0, 1.0, 1.0;
     simulator.initial(initial_state, 0.01);
 
+    // Define the input function (external force u = 0 for all time)
+    lorenz.defineInput([](double time) {
+        return Eigen::VectorXd::Zero(1);
+    });
+
     // Run the simulation for a certain number of steps
     for (size_t i = 0; i < 100000000; ++i)
     {
-        Eigen::VectorXd u(1);
-        u(0) = 0.0;
-        simulator.step(u);
+        simulator.step();
     }
 
     // --- Save results to CSV file ---

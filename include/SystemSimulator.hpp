@@ -83,7 +83,7 @@ public:
      *
      * @param input Input vector (optional, defaults to empty Eigen::VectorXd)
      */
-    void step(const Eigen::VectorXd& input = Eigen::VectorXd()) 
+    void step() 
     {
         if (!initialized_) 
         {
@@ -92,7 +92,7 @@ public:
         
         // Integrate using RK4
         current_state_ = RK4Integrator::integrate(
-            system_, current_state_, input, current_time_, dt_);
+            system_, current_state_, current_time_, dt_);
         
         current_time_ += dt_;
 
@@ -126,7 +126,7 @@ public:
     
     /// @brief Get the current state vector
     const Eigen::VectorXd& getCurrentState() const { return current_state_; }
-    
+
     /// @brief Get the current simulation time
     double getCurrentTime() const { return current_time_; }
     
@@ -174,7 +174,7 @@ public:
         file << std::endl;
         
         // Write data rows
-        file << std::fixed << std::setprecision(8);
+        file << std::fixed << std::setprecision(12);
         for (size_t i = 0; i < time_history_.size(); i++) 
         {
             file << time_history_[i];

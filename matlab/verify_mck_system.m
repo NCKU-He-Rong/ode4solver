@@ -26,11 +26,11 @@ state1 = data.("State1");
 sys = @(t,x) [x(2);(1/m) * (force - c*x(2) - k*x(1))];
 
 % solve
-[t, x] = ode45(sys, time, x0);
-
+% [t, x] = ode45(sys, time, x0);
+[t, x] = RK4(sys, [time(1), time(end)], x0, 0.01);
 %% Plot the result 
 figure("Position", [556.2,181.8,975.2,705.6]);
-plot(time, state0, 'LineWidth', 1.8, 'DisplayName', 'C++ Implementation');
+plot(time, state0 - x(:, 1), 'LineWidth', 1.8, 'DisplayName', 'C++ Implementation');
 hold on;
 plot(time, x(:, 1), '--', 'LineWidth', 1.8, 'DisplayName', 'MATLAB ODE45');
 

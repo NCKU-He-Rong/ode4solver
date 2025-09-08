@@ -27,6 +27,11 @@ int main(int argc, char** argv)
     init_state << 1.0, 0.0;  // initial position and velocity
     simulator.initial(init_state, 0.01);
 
+    // Define the input function (external force u = 0 for all time)
+    mck_system.defineInput([](double time) {
+        return Eigen::VectorXd::Zero(1); 
+    });
+
     std::cout << "\n=== Simulation ===" << std::endl;
 
     // ---- Run 10,000 steps (100 s if dt = 0.01) ----
@@ -42,10 +47,8 @@ int main(int argc, char** argv)
                       << ", vel = " << state(1) << std::endl;
         }
 
-        // One integration step with external input u = 0 (no force)
-        Eigen::VectorXd input(1);
-        input << 0.0;
-        simulator.step(input);
+        // step the simulation
+        simulator.step();
     }
 
     // --- Save results to CSV file ---

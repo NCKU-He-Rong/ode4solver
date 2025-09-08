@@ -9,7 +9,7 @@ public:
     LorenzAttractor(double sigma, double beta, double rho):
         sigma_(sigma), beta_(beta), rho_(rho) {}
 
-    Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state, const Eigen::VectorXd& input, double time) const override 
+    Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state, double time) const override 
     {
         if (state.size() != 3) 
         {
