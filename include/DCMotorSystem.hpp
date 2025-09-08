@@ -9,7 +9,7 @@ public:
     DCMotorSystem(double a, double b, double c_pos, double c_neg):
         a_(a), b_(b), c_pos_(c_pos), c_neg_(c_neg) {}
 
-    Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state, double time) const override 
+    Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state, double time) override 
     {
         if (state.size() != 2) 
         {
@@ -23,8 +23,16 @@ public:
         return derivatives;
     }
 
+    Eigen::VectorXd getInput(double time) override 
+    {
+        Eigen::VectorXd u(1);
+        u(0) = 6.0 * sin(2 * M_PI * 1.0 * time);
+        return u;
+    }
+
     int getStateDimension() const override {return 2;}
     int getInputDimension() const override {return 1;}
+    int getDesireDimension() const override {return 1;}
 
     Eigen::VectorXd getParameters() const
     {

@@ -22,44 +22,35 @@ int main(int argc, char** argv)
     std::cout << "Input Matrix B: " << mck_system.getInputMatrix().transpose() << std::endl;
 
     
+    // --- Set simulation parameters ---
+    simulator.setDt(0.01);  // set simulation time step to 0.01 seconds
+
     // --- Initialize simulation: state = [position, velocity] = [1.0, 0.0], dt = 0.01 s ---
     Eigen::VectorXd init_state(2);
-    init_state << 1.0, 0.0;  // initial position and velocity
-    simulator.initial(init_state, 0.01);
+    init_state << 1.0, 0.0;                  // initial position and velocity
+    simulator.initial(init_state, true);     // true means enable logging
 
-    // Define the input function (external force u = 0 for all time)
-    mck_system.defineInput([](double time) {
-        return Eigen::VectorXd::Zero(1); 
-    });
-
+    // Run the simulation for a certain number of steps
     std::cout << "\n=== Simulation ===" << std::endl;
-
-    // ---- Run 10,000 steps (100 s if dt = 0.01) ----
-    std::cout << std::fixed << std::setprecision(3);
     for (int i = 0; i < 10000; i++) 
-    {
-        // Print state every 10 steps
-        if (i % 10 == 0) 
-        {
-            const auto& state = simulator.getCurrentState();
-            std::cout << "t = " << simulator.getCurrentTime()
-                      << ", pos = "  << state(0)
-                      << ", vel = " << state(1) << std::endl;
-        }
-
+    {   
         // step the simulation
-        simulator.step();
+        Eigen::VectorXd state = simulator.step();
+
+        // print state every 10 steps
+        if (i % 10 == 9) 
+        {
+            double time = simulator.getCurrentTime();
+            std::cout << "Time: " << time << " s, State: " << state.transpose() << std::endl;
+        }
     }
 
     // --- Save results to CSV file ---
     // Must save before resetting the simulator
-    simulator.saveHistoryToCSV("result");
+    simulator.saveHistoryToCSV("MCKResult");
 
-    // --- Reset system back to initial conditions ---
-    std::cout << "\n=== Reset System ===" << std::endl;
-    simulator.reset();
-    const auto& reset_state = simulator.getCurrentState();
-    std::cout << "Reset state: " << reset_state.transpose() << std::endl;
+    // Reset the simulator
+    // simulator.reset(initial_state);
 
     return 0;
 }

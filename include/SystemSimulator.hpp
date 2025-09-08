@@ -23,17 +23,17 @@ template<typename SystemType>
 class SystemSimulator 
 {
 private:
-    SystemType &system_;                 ///< The system being simulated
-    Eigen::VectorXd current_state_;      ///< Current system state
-    Eigen::VectorXd initial_state_;      ///< Initial system state
-    double current_time_;                ///< Current simulation time
-    double dt_;                          ///< Sampling time (integration step)
-    bool initialized_;                   ///< Initialization flag
+    SystemType &system_;                  // The system being simulated
+    double dt_;                           // Sampling time (integration step)
+    bool initialized_;                    // Initialization flag
+    bool log_history_ = true;             // Enable/disable history logging
     
     // Data logging
-    std::vector<double> time_history_;             ///< Logged simulation times
-    std::vector<Eigen::VectorXd> state_history_;   ///< Logged system states
-    
+    std::vector<double> time_history_;             // Logged simulation times
+    std::vector<Eigen::VectorXd> state_history_;   // Logged system states
+    std::vector<Eigen::VectorXd> input_history_;   // Logged system inputs
+    std::vector<Eigen::VectorXd> desire_history_;  // Logged desired trajectories
+
 public:
     /**
      * @brief Construct the simulator with a system instance.
@@ -41,104 +41,117 @@ public:
      * @param sys System to be simulated
      */
     explicit SystemSimulator(SystemType& sys)
-        : system_(sys), current_time_(0.0), dt_(0.0), initialized_(false) {}
+        : system_(sys), dt_(0.0), initialized_(false) {}
     
+
+    /**
+     * @brief Set the sampling time (dt) for the simulator.
+     *
+     * @param dt New sampling time (must be > 0)
+     */
+    void setDt(double dt) 
+    {
+        // Check for positive dt
+        if (dt <= 0) 
+        {
+            throw std::invalid_argument("Sampling time must be positive");
+        }
+        else
+        {
+            dt_ = dt;
+        }
+    }
+
     /**
      * @brief Initialize the system with an initial state and sampling time.
      *
      * @param init_state Initial state vector
-     * @param sampling_time Simulation step size (must be > 0)
      */
-    void initial(const Eigen::VectorXd& init_state, double sampling_time) 
+    void initial(const Eigen::VectorXd& init_state, bool log = true) 
     {
         if (init_state.size() != system_.getStateDimension()) 
         {
             throw std::invalid_argument("Initial state dimension mismatch");
         }
-        if (sampling_time <= 0) 
+        if (dt_ <= 0) 
         {
             throw std::invalid_argument("Sampling time must be positive");
         }
+
+        // Set logging option
+        log_history_ = log;
         
-        initial_state_ = init_state;
-        current_state_ = init_state;
-        dt_ = sampling_time;
-        current_time_ = 0.0;
+        // Set initial conditions
+        system_.time_ = 0.0;
+        system_.state_ = init_state; 
+        system_.input_ = Eigen::VectorXd::Zero(system_.getInputDimension());
+        system_.desire_ = Eigen::VectorXd::Zero(system_.getDesireDimension());
         initialized_ = true;
         
         // Clear history logs
         time_history_.clear();
         state_history_.clear();
-
-        // Log the first state and time
-        time_history_.push_back(current_time_);
-        state_history_.push_back(current_state_);
+        input_history_.clear();
+        desire_history_.clear();
         
+        // Print initialization info
         std::cout << "System initialized with dt = " << dt_ << " seconds" << std::endl;
-        std::cout << "Initial state: " << current_state_.transpose() << std::endl;
+        std::cout << "Initial state: " << system_.state_.transpose() << std::endl;
     }
     
     /**
      * @brief Perform one simulation step using RK4 integration.
      *
      * @param input Input vector (optional, defaults to empty Eigen::VectorXd)
+     * @return Updated state vector after the step
      */
-    void step() 
+    Eigen::VectorXd step(const Eigen::VectorXd& desire = Eigen::VectorXd::Zero(0)) 
     {
         if (!initialized_) 
         {
             throw std::runtime_error("System not initialized. Call initial() first.");
         }
-        
-        // Integrate using RK4
-        current_state_ = RK4Integrator::integrate(
-            system_, current_state_, current_time_, dt_);
-        
-        current_time_ += dt_;
+
+        // Update system's desired trajectory
+        system_.desire_ = desire;
+
+        // Update system input based on new time
+        system_.input_ = system_.getInput(system_.time_);
 
         // Log current state before updating
-        time_history_.push_back(current_time_);
-        state_history_.push_back(current_state_);
+        if (log_history_)
+        {
+            time_history_.push_back(system_.time_);
+            state_history_.push_back(system_.state_);
+            input_history_.push_back(system_.input_);
+            desire_history_.push_back(system_.desire_);
+        }
+        
+        // Integrate using RK4
+        system_.state_ = RK4Integrator::integrate(
+            system_, system_.state_, system_.time_, dt_);
+        
+        // update the timestamp
+        system_.time_ += dt_;
+        
+        // return the updated state
+        return system_.state_;
     }
     
     /**
      * @brief Reset the system to its initial state.
      */
-    void reset() 
+    void reset(const Eigen::VectorXd& init_state) 
     {
-        if (!initialized_) 
-        {
-            throw std::runtime_error("System not initialized. Call initial() first.");
-        }
-        
-        current_state_ = initial_state_;
-        current_time_ = 0.0;
-        
-        // Clear history logs
-        time_history_.clear();
-        state_history_.clear();
-
-        // Reset initialization flag
-        initialized_ = false; 
-
-        std::cout << "System reset to initial conditions" << std::endl;
+        initial(init_state);
     }
-    
-    /// @brief Get the current state vector
-    const Eigen::VectorXd& getCurrentState() const { return current_state_; }
 
-    /// @brief Get the current simulation time
-    double getCurrentTime() const { return current_time_; }
-    
-    /// @brief Get the simulation step size
+    // @brief Get the simulation step size
     double getSamplingTime() const { return dt_; }
-    
-    /// @brief Get the logged time history
-    const std::vector<double>& getTimeHistory() const { return time_history_; }
-    
-    /// @brief Get the logged state history
-    const std::vector<Eigen::VectorXd>& getStateHistory() const { return state_history_; }
-    
+
+    // @brief Get the current timestamp
+    double getCurrentTime() const { return system_.time_; }
+
     /**
      * @brief Save the simulation history to a CSV file.
      *
@@ -149,6 +162,12 @@ public:
      */
     void saveHistoryToCSV(const std::string& filename) const 
     {
+        if (!log_history_) 
+        {
+            std::wcerr << "History logging is disabled. No data to save." << std::endl;
+            return;
+        }
+
         std::cout << "Saving history to file: " << filename << ".csv" << std::endl;
 
         if (time_history_.empty() || state_history_.empty()) 
@@ -174,7 +193,7 @@ public:
         file << std::endl;
         
         // Write data rows
-        file << std::fixed << std::setprecision(12);
+        file << std::fixed << std::setprecision(18);
         for (size_t i = 0; i < time_history_.size(); i++) 
         {
             file << time_history_[i];

@@ -35,7 +35,7 @@ public:
      * @param dt     Integration time step
      * @return Updated state vector after one RK4 step
      */
-    static Eigen::VectorXd integrate(const DynamicSystem& system,
+    static Eigen::VectorXd integrate(DynamicSystem& system,
                                      const Eigen::VectorXd& state,
                                      double time,
                                      double dt) 

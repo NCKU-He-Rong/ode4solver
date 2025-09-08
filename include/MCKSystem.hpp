@@ -46,12 +46,11 @@ public:
      *     dx/dt = A * x + B * u
      *
      * @param state Current state vector [x, x']
-     * @param input Control input vector [u]
-     * @param time  Current simulation time (unused here, but required by interface)
+     * @param time  Current simulation time 
      * @return State derivative vector [x', x'']
      */
     Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state,
-                                       double time) const override 
+                                       double time) override 
     {
         if (state.size() != 2) 
         {
@@ -60,18 +59,27 @@ public:
 
         return A_matrix * state + B_vector * getInput(time);
     }
-    
-    /// @brief Get the system matrix A
-    const Eigen::Matrix2d& getSystemMatrix() const { return A_matrix; }
 
-    /// @brief Get the input matrix B
-    const Eigen::Vector2d& getInputMatrix() const { return B_vector; }
+    Eigen::VectorXd getInput(double time) override 
+    {
+        // Zero input
+        return Eigen::VectorXd::Zero(1);
+    }
     
     /// @brief Dimension of the state vector (always 2: [x, x'])
     int getStateDimension() const override { return 2; }
 
     /// @brief Dimension of the input vector (always 1: [u])
     int getInputDimension() const override { return 1; }
+
+    /// @brief Dimension of the desired trajectory vector (always 0)
+    int getDesireDimension() const override { return 0; }
+
+    /// @brief Get the system matrix A
+    const Eigen::Matrix2d& getSystemMatrix() const { return A_matrix; }
+
+    /// @brief Get the input matrix B
+    const Eigen::Vector2d& getInputMatrix() const { return B_vector; }
 
     /// @brief Get system parameters [mass, damping, stiffness]
     Eigen::VectorXd getParameters() const 

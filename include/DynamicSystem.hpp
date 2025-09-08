@@ -28,32 +28,20 @@ public:
      * @brief Compute the state derivatives of the system.
      *
      * This represents the system dynamics equation:
-     *     dx/dt = f(x, u, t)
+     *     dx/dt = f(x, t)
      *
      * @param state Current state vector (x)
-     * @param input Control input vector (u)
      * @param time  Current simulation time (t)
      * @return A vector representing the time derivative of the state (dx/dt)
      */
-    virtual Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state, double time) const = 0;
+    virtual Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state, double time) = 0;
     
-
-    void defineInput(const std::function<Eigen::VectorXd(double)>& input) 
-    {
-        inputFunc = input;
-    }
-    
-    Eigen::VectorXd getInput(double time) const 
-    {
-        if (inputFunc) 
-        {
-            return inputFunc(time);
-        }
-        else
-        {
-            throw std::runtime_error("Input function is not defined");
-        }
-    }
+    /**
+     * @brief Get the control input vector at a given time.
+     * @param time Current simulation time (t)
+     * @return Control input vector (u) at the specified time
+     */
+    virtual Eigen::VectorXd getInput(double time) = 0;
 
     /**
      * @brief Get the dimension of the system state vector.
@@ -69,9 +57,21 @@ public:
      */
     virtual int getInputDimension() const = 0;
 
-protected:
-    // Function to define the input as a function of time
-    std::function<Eigen::VectorXd(double)> inputFunc;
+    /**
+     * @brief Get the dimension of the system desired trajectory vector.
+     *
+     * @return Number of desired trajectory variables
+     */
+    virtual int getDesireDimension() const = 0;
+
+public:
+    // Current state and input vectors
+    double time_;            // Current simulation time
+    Eigen::VectorXd state_;  // Current state vector
+    Eigen::VectorXd input_;  // Current input vector
+    Eigen::VectorXd desire_; // Desired trajectory
+    
+
 };
 
 #endif // DYNAMIC_SYSTEM_HPP

@@ -9,7 +9,7 @@ public:
     LorenzAttractor(double sigma, double beta, double rho):
         sigma_(sigma), beta_(beta), rho_(rho) {}
 
-    Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state, double time) const override 
+    Eigen::VectorXd computeDerivatives(const Eigen::VectorXd& state, double time) override 
     {
         if (state.size() != 3) 
         {
@@ -23,8 +23,15 @@ public:
         return derivatives;
     }
 
+    Eigen::VectorXd getInput(double time) override 
+    {
+        // No external input for Lorenz Attractor
+        return Eigen::VectorXd::Zero(0); 
+    }
+
     int getStateDimension() const override {return 3;}
     int getInputDimension() const override {return 0;}
+    int getDesireDimension() const override {return 0;}
 
     Eigen::VectorXd getParameters() const
     {
