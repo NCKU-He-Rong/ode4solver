@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+
 #ifndef MCK_SYSTEM_HPP
 #define MCK_SYSTEM_HPP
 

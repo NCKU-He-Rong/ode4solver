@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+
 #ifndef LORENZ_ATTRACTOR_HPP
 #define LORENZ_ATTRACTOR_HPP
 
@@ -31,7 +33,6 @@ public:
 
     int getStateDimension() const override {return 3;}
     int getInputDimension() const override {return 0;}
-    int getDesireDimension() const override {return 0;}
 
     Eigen::VectorXd getParameters() const
     {

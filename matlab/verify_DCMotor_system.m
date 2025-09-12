@@ -14,7 +14,7 @@ u_input = 6 * sin(2*pi*1*t_input);
 x0 = [0.0; 0.0];
 
 %% 載入 C++ 結果
-data = readtable("DCMotorResult.csv", "VariableNamingRule", "preserve");
+data = readtable("DCMotorResult_OpenLoop.csv", "VariableNamingRule", "preserve");
 time_cpp = data.("Time(Seconds)");
 state0_cpp = data.("State0");  % 位置
 state1_cpp = data.("State1");  % 速度

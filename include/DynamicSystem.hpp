@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+
 #ifndef DYNAMIC_SYSTEM_HPP
 #define DYNAMIC_SYSTEM_HPP
 
@@ -38,10 +40,37 @@ public:
     
     /**
      * @brief Get the control input vector at a given time.
+     * 
+     * @param state Current state vector (x)
      * @param time Current simulation time (t)
      * @return Control input vector (u) at the specified time
      */
-    virtual Eigen::VectorXd getInput(double time) = 0;
+    virtual Eigen::VectorXd getInput(const Eigen::VectorXd& state, double time) = 0;
+
+    /**
+     * @brief Compute the desired trajectory and tracking error.
+     *
+     * This function computes the desired trajectory (position, velocity, acceleration)
+     * and the tracking error (error, error derivative, error integral) based on the 
+     * current state and time.
+     *
+     * @param desire Output vector for desired trajectory
+     * @param desire_dot Output vector for derivative of desired trajectory
+     * @param desire_ddot Output vector for second derivative of desired trajectory
+     * @param error Output vector for tracking error
+     * @param error_dot Output vector for derivative of tracking error
+     * @param error_int Output vector for integral of tracking error
+     * @param state Current state vector (x)
+     * @param time Current simulation time (t)
+     */
+    virtual void computeDesiredAndError(Eigen::VectorXd& desire, 
+                                        Eigen::VectorXd& desire_dot, 
+                                        Eigen::VectorXd& desire_ddot,
+                                        Eigen::VectorXd& error, 
+                                        Eigen::VectorXd& error_dot,
+                                        Eigen::VectorXd& error_int,
+                                        const Eigen::VectorXd& state,
+                                        double time) = 0;
 
     /**
      * @brief Get the dimension of the system state vector.
@@ -58,20 +87,33 @@ public:
     virtual int getInputDimension() const = 0;
 
     /**
-     * @brief Get the dimension of the system desired trajectory vector.
-     *
-     * @return Number of desired trajectory variables
+     * @brief Set the Controller gains.
+     * 
+     * @param gains A vector containing the controller gains
      */
-    virtual int getDesireDimension() const = 0;
+    virtual void setGains(const Eigen::VectorXd & gains) = 0;
+
+    /**
+     * @brief Reset the system to its initial state.
+     */
+    virtual void reset() = 0;
 
 public:
     // Current state and input vectors
-    double time_;            // Current simulation time
-    Eigen::VectorXd state_;  // Current state vector
-    Eigen::VectorXd input_;  // Current input vector
-    Eigen::VectorXd desire_; // Desired trajectory
-    
+    double time_;                  // Current simulation time
+    double dt_;                     // Time step for simulation
+    bool isopenloop_;               // Flag indicating if the system is in open-loop mode
 
+    Eigen::VectorXd state_;        // Current state vector
+    Eigen::VectorXd input_;         // Current input vector
+
+    Eigen::VectorXd desire_;       // Desired trajectory
+    Eigen::VectorXd desire_dot_;   // Derivative of desired trajectory
+    Eigen::VectorXd desire_ddot_;  // Second derivative of desired trajectory
+
+    Eigen::VectorXd error_;        // Tracking error
+    Eigen::VectorXd error_dot_;    // Derivative of tracking error
+    Eigen::VectorXd error_int_;    // Integral of tracking error
 };
 
 #endif // DYNAMIC_SYSTEM_HPP

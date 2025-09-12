@@ -70,6 +70,7 @@
         "xloctime": "cpp",
         "xmemory": "cpp",
         "xtr1common": "cpp",
-        "dense": "cpp"
+        "dense": "cpp",
+        "core": "cpp"
     }
 }
