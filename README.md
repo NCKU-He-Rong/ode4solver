@@ -1,6 +1,6 @@
 # ODE4Solver：用 C++ 實現的動態系統數值求解器
 
-![Lorenz 系統示意圖](fig/Lorenzsystem.png)
+![Lorenz 系統示意圖](fig/Lorenzsystem.jpg)
 
 一個用於模擬動態系統的 C++ 專案，聚焦於 Lorenz 吸子與 MCK（質彈阻）系統。此專案適合學術研究與工程應用，提供模組化、可擴充的數值積分與系統模擬架構。
 
