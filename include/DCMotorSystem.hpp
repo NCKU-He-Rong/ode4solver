@@ -121,6 +121,14 @@ public:
         kp_ = gains(0);
         ki_ = gains(1);
         kd_ = gains(2);
+        
+        if (gains.size() > 3)
+        {
+            alpha = gains(3);
+            beta = gains(4);
+            gamma1 = gains(5);
+            gamma2 = gains(6);
+        }
     }
 
     int getStateDimension() const override {return 2;}
@@ -131,23 +139,6 @@ public:
         Eigen::VectorXd parameters(4);
         parameters << a_, b_, c_pos_, c_neg_;
         return parameters;
-    }
-
-    void setParameters(const Eigen::VectorXd& parameters)
-    {
-        if (parameters.size() != 4) 
-        {
-            throw std::invalid_argument("DC Motor system requires 4 parameters");
-        }
-        a_ = parameters[0];
-        b_ = parameters[1];
-        c_pos_ = parameters[2];
-        c_neg_ = parameters[3];
-
-        alpha = (a_ / b_);
-        beta = (1.0 / b_);
-        gamma1 = (c_pos_ / b_);
-        gamma2 = (c_neg_ / b_);
     }
 
     void reset() override
