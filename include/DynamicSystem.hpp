@@ -87,13 +87,6 @@ public:
     virtual int getInputDimension() const = 0;
 
     /**
-     * @brief Set the Controller gains.
-     * 
-     * @param gains A vector containing the controller gains
-     */
-    virtual void setGains(const Eigen::VectorXd & gains) = 0;
-
-    /**
      * @brief Reset the system to its initial state.
      */
     virtual void reset() = 0;

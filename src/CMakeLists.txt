@@ -1,3 +1,3 @@
 # add_executable(example_MCK example_MCK.cpp)
-# add_executable(example_Lorenz example_Lorenz.cpp)
+add_executable(example_Lorenz example_Lorenz.cpp)
 add_executable(example_DCMotor example_DCMotor.cpp)

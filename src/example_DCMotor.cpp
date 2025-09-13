@@ -6,8 +6,8 @@
 
 int main(int argc, char** argv)
 {   
-    // Manual Settings
-    bool isopenloop = true;
+    // Some manual settings
+    bool isopenloop = false;
     bool islog = true;
     double sampling_time = 0.001;
 

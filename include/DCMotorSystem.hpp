@@ -116,7 +116,7 @@ public:
         }
     }
 
-    void setGains(const Eigen::VectorXd & gains) override
+    void setGains(const Eigen::VectorXd & gains)
     {
         kp_ = gains(0);
         ki_ = gains(1);
